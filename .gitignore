@@ -1,0 +1,27 @@
+# Python
+venv/
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.python-version
+
+# Environment
+.env
+
+# Vector Database
+server/chroma_db/
+chroma_db/
+
+# Uploaded PDFs
+uploads/
+server/uploads/
+
+# VS Code
+.vscode/
+
+# macOS
+.DS_Store
+
+# Windows
+Thumbs.db
