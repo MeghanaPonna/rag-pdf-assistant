@@ -6,6 +6,8 @@ from config.settings import settings
 from api.routes import router
 from api.upload import router as upload_router
 from api.chat import router as chat_router
+from api.document import router as document_router
+
 
 
 app = FastAPI(
@@ -29,6 +31,8 @@ app.include_router(upload_router)
 # Chat API
 app.include_router(chat_router)
 
+# Document API
+app.include_router(document_router)
 
 @app.get("/")
 def root():

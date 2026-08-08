@@ -37,7 +37,11 @@ async def upload_pdf(file: UploadFile = File(...)):
     result = processor.process(str(file_path))
 
     # Store chunks in ChromaDB
-    vector_store.add_chunks(result["chunks"])
+    # vector_store.add_chunks(result["chunks"])
+    vector_store.add_chunks(
+        result["chunks"],
+        source=file.filename
+    )
 
     return {
         "message": "Document indexed successfully",
