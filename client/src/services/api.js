@@ -1,418 +1,52 @@
-// // // import axios from "axios";
-
-// // // const API = axios.create({
-// // //   baseURL: "http://127.0.0.1:8000",
-// // //   timeout: 120000,
-// // // });
-
-// // // // Upload PDF
-// // // export const uploadPDF = async (file) => {
-// // //   const formData = new FormData();
-
-// // //   formData.append("file", file);
-
-// // //   const response = await API.post("/upload/", formData, {
-// // //     headers: {
-// // //       "Content-Type": "multipart/form-data",
-// // //     },
-// // //   });
-
-// // //   return response.data;
-// // // };
-
-// // // // Ask question
-// // // export const askQuestion = async (question) => {
-// // //   const response = await API.post("/chat/", {
-// // //     question,
-// // //   });
-
-// // //   return response.data;
-// // // };
-
-// // // export default API;
-
-
-// // import axios from "axios";
-
-// // const API = axios.create({
-// //   baseURL: "http://127.0.0.1:8000",
-// //   timeout: 120000,
-// // });
-
-// // // ==========================================
-// // // UPLOAD PDF
-// // // ==========================================
-
-// // export const uploadPDF = async (file) => {
-// //   try {
-// //     const formData = new FormData();
-
-// //     formData.append("file", file);
-
-// //     const response = await API.post("/upload/", formData);
-
-// //     return response.data;
-// //   } catch (error) {
-// //     console.error("Upload API Error:", error);
-
-// //     const message =
-// //       error.response?.data?.detail ||
-// //       error.message ||
-// //       "Failed to upload PDF";
-
-// //     throw new Error(
-// //       typeof message === "string"
-// //         ? message
-// //         : JSON.stringify(message)
-// //     );
-// //   }
-// // };
-
-// // // ==========================================
-// // // ASK QUESTION
-// // // ==========================================
-
-// // export const askQuestion = async (question) => {
-// //   try {
-// //     const response = await API.post("/chat/", {
-// //       question: question,
-// //     });
-
-// //     console.log("Chat API Response:", response.data);
-
-// //     return response.data;
-
-// //   } catch (error) {
-// //     console.error("Chat API Error:", error);
-
-// //     const detail = error.response?.data?.detail;
-
-// //     const message =
-// //       typeof detail === "string"
-// //         ? detail
-// //         : detail
-// //           ? JSON.stringify(detail)
-// //           : error.message || "Failed to get answer";
-
-// //     throw new Error(message);
-// //   }
-// // };
-
-// // export default API;
-
-
-// import axios from "axios";
-
-// const API = axios.create({
-//   baseURL: "http://127.0.0.1:8000",
-//   timeout: 120000,
-// });
-
-// // ==========================================
-// // UPLOAD PDF
-// // ==========================================
-
-// export const uploadPDF = async (file) => {
-//   try {
-//     const formData = new FormData();
-
-//     formData.append("file", file);
-
-//     const response = await API.post("/upload/", formData);
-
-//     console.log("Upload API Response:", response.data);
-
-//     return response.data;
-//   } catch (error) {
-//     console.error("Upload API Error:", error);
-
-//     const detail = error.response?.data?.detail;
-
-//     const message =
-//       typeof detail === "string"
-//         ? detail
-//         : detail
-//           ? JSON.stringify(detail)
-//           : error.message || "Failed to upload PDF";
-
-//     throw new Error(message);
-//   }
-// };
-
-// // ==========================================
-// // ASK QUESTION
-// // ==========================================
-
-// export const askQuestion = async (question) => {
-//   try {
-//     const response = await API.post("/chat/", {
-//       question: question,
-//     });
-
-//     console.log("Chat API Response:", response.data);
-
-//     return response.data;
-//   } catch (error) {
-//     console.error("Chat API Error:", error);
-
-//     const detail = error.response?.data?.detail;
-
-//     const message =
-//       typeof detail === "string"
-//         ? detail
-//         : detail
-//           ? JSON.stringify(detail)
-//           : error.message || "Failed to get answer";
-
-//     throw new Error(message);
-//   }
-// };
-
-// // export default API;
-
-// export const generateSummary = async (source) => {
-//   try {
-//     const response = await API.post(
-//       "/document/summary",
-//       {
-//         source,
-//       }
-//     );
-
-//     return response.data;
-
-//   } catch (error) {
-
-//     console.error(
-//       "Summary API Error:",
-//       error
-//     );
-
-//     const detail =
-//       error.response?.data?.detail;
-
-//     throw new Error(
-//       typeof detail === "string"
-//         ? detail
-//         : error.message ||
-//           "Failed to generate summary"
-//     );
-//   }
-// };
-
-
-// export default API;
-
-
-
 import axios from "axios";
 
 const API = axios.create({
-  baseURL: "http://127.0.0.1:8000",
+  baseURL: import.meta.env.VITE_API_URL || "http://127.0.0.1:8000",
   timeout: 120000,
 });
 
-// =====================================================
-// UPLOAD PDF
-// =====================================================
+const errorMessage = (error, fallback) => {
+  const detail = error.response?.data?.detail;
+  return typeof detail === "string" ? detail : error.message || fallback;
+};
 
 export const uploadPDF = async (file) => {
   try {
     const formData = new FormData();
-
     formData.append("file", file);
-
-    const response = await API.post("/upload/", formData);
-
-    return response.data;
+    return (await API.post("/upload/", formData)).data;
   } catch (error) {
-    console.error("Upload API Error:", error);
-
-    const detail = error.response?.data?.detail;
-
-    const message =
-      typeof detail === "string"
-        ? detail
-        : detail
-        ? JSON.stringify(detail)
-        : error.message || "Failed to upload PDF";
-
-    throw new Error(message);
+    throw new Error(errorMessage(error, "Failed to upload PDF."), { cause: error });
   }
 };
 
-// =====================================================
-// ASK QUESTION
-// =====================================================
-
-// export const askQuestion = async (question) => {
-//   try {
-//     const response = await API.post("/chat/", {
-//       question,
-//     });
-
-//     console.log("Chat API Response:", response.data);
-
-//     return response.data;
-//   } catch (error) {
-//     console.error("Chat API Error:", error);
-
-//     const detail = error.response?.data?.detail;
-
-//     const message =
-//       typeof detail === "string"
-//         ? detail
-//         : detail
-//         ? JSON.stringify(detail)
-//         : error.message || "Failed to get answer";
-
-//     throw new Error(message);
-//   }
-// };
-
-export const askQuestion = async (question, source) => {
+export const askQuestion = async (question, source, history = []) => {
   try {
-    const response = await API.post("/chat/", {
-      question: question,
-      source: source,
-    });
-
-    console.log("Chat API Response:", response.data);
-
-    return response.data;
-
+    return (await API.post("/chat/", { question, source, history })).data;
   } catch (error) {
-    console.error("Chat API Error:", error);
-
-    const detail = error.response?.data?.detail;
-
-    const message =
-      typeof detail === "string"
-        ? detail
-        : detail
-          ? JSON.stringify(detail)
-          : error.message || "Failed to get answer";
-
-    throw new Error(message);
+    throw new Error(errorMessage(error, "Failed to get an answer."), { cause: error });
   }
 };
 
-
-// =====================================================
-// DOCUMENT INTELLIGENCE
-// =====================================================
-
-// export const generateSummary = async () => {
-//   try {
-//     const response = await API.get("/document/summary");
-
-//     console.log("Summary API Response:", response.data);
-
-//     return response.data;
-//   } catch (error) {
-//     console.error("Summary API Error:", error);
-
-//     const detail = error.response?.data?.detail;
-
-//     throw new Error(
-//       typeof detail === "string"
-//         ? detail
-//         : error.message || "Failed to generate summary"
-//     );
-//   }
-// };
-
-
-export const generateSummary = async (source) => {
+const analyze = async (endpoint, source) => {
   try {
-    const response = await API.post("/document/summary", {
-      source: source,
-    });
-
-    console.log("Summary API Response:", response.data);
-
-    return response.data;
-
+    return (await API.post(`/document/${endpoint}`, { source })).data;
   } catch (error) {
-    console.error("Summary API Error:", error);
-
-    const detail = error.response?.data?.detail;
-
-    throw new Error(
-      typeof detail === "string"
-        ? detail
-        : error.message || "Failed to generate summary"
-    );
+    throw new Error(errorMessage(error, "Document analysis failed."), { cause: error });
   }
 };
 
-export const getKeyTopics = async () => {
+export const generateSummary = (source) => analyze("summary", source);
+export const getKeyTopics = (source) => analyze("topics", source);
+export const getSections = (source) => analyze("sections", source);
+export const generateInterviewQuestions = (source) => analyze("interview-questions", source);
+export const getDocuments = async () => {
   try {
-    const response = await API.get("/document/topics");
-
-    console.log("Topics API Response:", response.data);
-
-    return response.data;
+    return (await API.get("/document/list")).data.documents || [];
   } catch (error) {
-    console.error("Topics API Error:", error);
-
-    const detail = error.response?.data?.detail;
-
-    throw new Error(
-      typeof detail === "string"
-        ? detail
-        : error.message || "Failed to get key topics"
-    );
+    throw new Error(errorMessage(error, "Unable to load indexed documents."), { cause: error });
   }
 };
-
-export const getSections = async () => {
-  try {
-    const response = await API.get("/document/sections");
-
-    console.log("Sections API Response:", response.data);
-
-    return response.data;
-  } catch (error) {
-    console.error("Sections API Error:", error);
-
-    const detail = error.response?.data?.detail;
-
-    throw new Error(
-      typeof detail === "string"
-        ? detail
-        : error.message || "Failed to get document sections"
-    );
-  }
-};
-
-export const generateInterviewQuestions = async () => {
-  try {
-    const response = await API.get(
-      "/document/interview-questions"
-    );
-
-    console.log(
-      "Interview Questions API Response:",
-      response.data
-    );
-
-    return response.data;
-  } catch (error) {
-    console.error(
-      "Interview Questions API Error:",
-      error
-    );
-
-    const detail = error.response?.data?.detail;
-
-    throw new Error(
-      typeof detail === "string"
-        ? detail
-        : error.message ||
-          "Failed to generate interview questions"
-    );
-  }
-};
+export const pdfUrl = (source, page) => `${API.defaults.baseURL}/files/${encodeURIComponent(source)}#page=${page}`;
 
 export default API;

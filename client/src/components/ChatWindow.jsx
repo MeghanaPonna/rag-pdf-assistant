@@ -1761,7 +1761,7 @@
 
 
 import { useEffect, useRef, useState } from "react";
-import { askQuestion } from "../services/api";
+import { askQuestion, pdfUrl } from "../services/api";
 import ReactMarkdown from "react-markdown";
 
 function ChatWindow({
@@ -1853,7 +1853,8 @@ function ChatWindow({
 
       const result = await askQuestion(
         userQuestion,
-        document.filename
+        document.filename,
+        messages.slice(-8).map(({ role, content }) => ({ role, content }))
       );
 
       console.log("Received result:", result);
@@ -1952,6 +1953,8 @@ function ChatWindow({
     if (onQuickQuestionHandled) {
       onQuickQuestionHandled();
     }
+  // handleAsk intentionally reads the current message state; this effect only reacts to a new sidebar action.
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [quickQuestion]);
 
   // ==========================================
@@ -2101,15 +2104,18 @@ function ChatWindow({
                         source,
                         sourceIndex
                       ) => (
-                        <span
+                        <a
                           key={
                             sourceIndex
                           }
                           className="source-badge"
+                          href={pdfUrl(source.source || document.filename, source.page)}
+                          target="_blank"
+                          rel="noreferrer"
                         >
                           📄 Page{" "}
                           {source.page}
-                        </span>
+                        </a>
                       )
                     )}
 

@@ -1,5 +1,6 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.staticfiles import StaticFiles
 
 from config.settings import settings
 
@@ -18,7 +19,7 @@ app = FastAPI(
 # CORS
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],      # Restrict later in production
+    allow_origins=settings.cors_origins,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -33,6 +34,9 @@ app.include_router(chat_router)
 
 # Document API
 app.include_router(document_router)
+
+# Enables citations to open a browser-native viewer at /files/<name>#page=<n>.
+app.mount("/files", StaticFiles(directory="uploads"), name="files")
 
 @app.get("/")
 def root():

@@ -680,22 +680,34 @@
 
 
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import "./App.css";
 
 import PDFUpload from "./components/PDFUpload";
 import ChatWindow from "./components/ChatWindow";
 import Sidebar from "./components/Sidebar";
 import DocumentIntelligence from "./components/DocumentIntelligence";
+import { getDocuments } from "./services/api";
 
 
 function App() {
 
   const [document, setDocument] = useState(null);
+  const [documents, setDocuments] = useState([]);
 
   const [documentVersion, setDocumentVersion] = useState(0);
 
   const [quickQuestion, setQuickQuestion] = useState(null);
+  const [documentLoadError, setDocumentLoadError] = useState("");
+
+  useEffect(() => {
+    getDocuments()
+      .then((indexedDocuments) => {
+        setDocuments(indexedDocuments);
+        setDocument((current) => current || indexedDocuments[0] || null);
+      })
+      .catch((error) => setDocumentLoadError(error.message));
+  }, []);
 
 
   // ==========================================
@@ -710,7 +722,17 @@ function App() {
     );
 
     // Save uploaded document
-    setDocument(result);
+    const normalized = {
+      ...result,
+      total_pages: result.total_pages ?? result.totalPages,
+      total_chunks: result.total_chunks ?? result.totalChunks,
+    };
+    setDocuments((current) => [
+      ...current.filter((item) => item.filename !== normalized.filename),
+      normalized,
+    ]);
+    setDocument(normalized);
+    setDocumentLoadError("");
 
     // Reset ChatWindow
     setDocumentVersion(
@@ -812,11 +834,13 @@ function App() {
             SIDEBAR
         ===================================== */}
 
-        <Sidebar
-          document={document}
-          onQuickQuestion={handleQuickQuestion}
-          onClearChat={handleClearChat}
-        />
+          <Sidebar
+            document={document}
+            documents={documents}
+            onSelectDocument={(selected) => { setDocument(selected); setDocumentVersion((previous) => previous + 1); setQuickQuestion(null); }}
+            onQuickQuestion={handleQuickQuestion}
+            onClearChat={handleClearChat}
+          />
 
 
         {/* ====================================
@@ -851,6 +875,10 @@ function App() {
                 handleUploadSuccess
               }
             />
+
+            {documentLoadError && (
+              <p className="error">{documentLoadError}</p>
+            )}
 
 
             {/* ==================================
@@ -899,6 +927,7 @@ function App() {
           {document && (
 
             <DocumentIntelligence
+              key={document.filename}
               document={document}
             />
 

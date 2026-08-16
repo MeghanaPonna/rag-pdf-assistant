@@ -1,5 +1,7 @@
 function Sidebar({
   document,
+  documents = [],
+  onSelectDocument,
   onQuickQuestion,
   onClearChat,
 }) {
@@ -43,6 +45,17 @@ function Sidebar({
         )}
 
       </div>
+
+      {documents.length > 0 && (
+        <div className="document-list">
+          <h3>DOCUMENTS</h3>
+          {documents.map((item) => (
+            <button key={item.filename} className={`document-select ${item.filename === document?.filename ? "active" : ""}`} onClick={() => onSelectDocument?.(item)}>
+              📄 {item.filename}
+            </button>
+          ))}
+        </div>
+      )}
 
 
       {/* =====================================

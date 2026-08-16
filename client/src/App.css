@@ -2186,3 +2186,19 @@ body {
     overflow-x: auto;
   }
 }
+
+.intelligence-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 14px; }
+.intelligence-card, .question-card { background: #fff; border: 1px solid #e3e8f3; border-radius: 12px; padding: 18px; box-shadow: 0 4px 16px rgba(23, 32, 51, .05); }
+.intelligence-card h3, .question-card h3 { margin: 0 0 8px; font-size: 16px; }
+.intelligence-card p, .question-card p { color: #526075; line-height: 1.5; }
+.intelligence-card small, .question-card small { color: #66748a; font-weight: 600; }
+.question-list { display: grid; gap: 12px; }
+.question-card { display: grid; gap: 10px; }
+.question-card button { justify-self: start; border: 1px solid #cbd6ea; background: #f8faff; border-radius: 7px; padding: 7px 10px; color: #28519a; }
+.question-answer { background: #f7f9fd; border-radius: 8px; padding: 12px; margin: 0; }
+.difficulty { display: inline-block; padding: 3px 8px; border-radius: 999px; font-size: 12px; font-weight: 700; margin-bottom: 7px; }
+.difficulty.easy { color: #1f7a45; background: #e5f6ea; }.difficulty.medium { color: #9a6200; background: #fff3d7; }.difficulty.hard { color: #b23232; background: #fde8e8; }
+.source-badge { text-decoration: none; }.source-badge:hover { background: #dbeafe; color: #174ea6; }
+.document-list { margin: 20px 0; }.document-list h3 { font-size: 11px; color: #748098; letter-spacing: .08em; }
+.document-select { display: block; width: 100%; text-align: left; border: 0; background: transparent; border-radius: 8px; padding: 9px; color: inherit; margin: 3px 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.document-select:hover, .document-select.active { background: #e8effd; color: #214c9a; }
