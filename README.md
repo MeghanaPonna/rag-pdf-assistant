@@ -10,6 +10,8 @@ React/Vite frontend and FastAPI backend for grounded PDF chat and document intel
 
 Set `VITE_API_URL` in the client environment when the API is not hosted at `http://127.0.0.1:8000`. Set `CORS_ORIGINS` in the backend to the deployed frontend URL.
 
+To persist the document list and chat history, configure `MONGO_URI` and `MONGO_DATABASE` in `server/.env`, then install `server/requirements-mongodb.txt` into the backend virtual environment. Until MongoDB is configured, documents can still be selected from Chroma, but chat history is not durable.
+
 ### API
 
 | Method | Endpoint | Purpose |

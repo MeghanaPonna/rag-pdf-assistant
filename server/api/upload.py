@@ -2,11 +2,12 @@ import logging
 import re
 from pathlib import Path
 
-from fastapi import APIRouter, File, HTTPException, UploadFile
+from fastapi import APIRouter, File, Form, HTTPException, UploadFile
 
 from config.settings import settings
 from core.document_processor import DocumentProcessor
 from core.vector_store import VectorStore
+from core.mongo_store import MongoStore
 
 logger = logging.getLogger(__name__)
 router = APIRouter(prefix="/upload", tags=["Upload"])
@@ -24,7 +25,7 @@ def safe_filename(filename: str | None) -> str:
 
 
 @router.post("/")
-async def upload_pdf(file: UploadFile = File(...)):
+async def upload_pdf(file: UploadFile = File(...), client_id: str = Form(default="anonymous", max_length=100)):
     filename = safe_filename(file.filename)
     if file.content_type not in {"application/pdf", "application/x-pdf", None}:
         raise HTTPException(status_code=400, detail="Only PDF files are allowed.")
@@ -39,9 +40,15 @@ async def upload_pdf(file: UploadFile = File(...)):
         result = processor.process(str(path))
         if not result["chunks"]:
             raise HTTPException(status_code=422, detail="No readable text was found in this PDF.")
-        vector_store.delete_by_source(filename)
+        try:
+            vector_store.delete_by_source(filename)
+        except Exception as delete_error:
+            # Older Chroma installs may not support metadata deletion; indexing must still work.
+            logger.warning("Could not remove existing vectors for %s: %s", filename, delete_error)
         vector_store.add_chunks(result["chunks"], source=filename)
-        return {"message": "Document indexed successfully", "filename": filename, "total_pages": len(result["pages"]), "total_chunks": len(result["chunks"]), "vectors_created": len(result["chunks"])}
+        document = {"filename": filename, "total_pages": len(result["pages"]), "total_chunks": len(result["chunks"])}
+        MongoStore().save_document(client_id, document)
+        return {"message": "Document indexed successfully", **document, "vectors_created": len(result["chunks"])}
     except HTTPException:
         raise
     except Exception as error:

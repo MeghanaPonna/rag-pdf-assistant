@@ -1,10 +1,11 @@
 import logging
 
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, HTTPException, Query
 from pydantic import BaseModel, Field
 
 from core.document_intelligence import DocumentIntelligence
 from core.vector_store import VectorStore
+from core.mongo_store import MongoStore
 
 logger = logging.getLogger(__name__)
 router = APIRouter(prefix="/document", tags=["Document"])
@@ -19,13 +20,15 @@ def intelligence() -> DocumentIntelligence:
 
 
 @router.get("/list")
-async def list_documents():
+async def list_documents(client_id: str = Query(default="anonymous", min_length=1, max_length=100)):
     """Returns all indexed sources so a browser refresh does not lose document selection."""
     try:
-        return {"success": True, "documents": VectorStore().list_documents()}
+        documents = MongoStore().list_documents(client_id)
+        return {"success": True, "documents": documents or VectorStore().list_documents(), "persistent": bool(documents)}
     except Exception as error:
         logger.exception("Document list failed: %s", error)
-        raise HTTPException(status_code=503, detail="Unable to load indexed documents.")
+        # Listing is an enhancement. Do not block uploads or the rest of the UI if Chroma is restarting.
+        return {"success": True, "documents": [], "persistent": False}
 
 
 def analysis_error(error: Exception) -> HTTPException:

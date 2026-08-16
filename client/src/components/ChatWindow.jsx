@@ -1761,7 +1761,7 @@
 
 
 import { useEffect, useRef, useState } from "react";
-import { askQuestion, pdfUrl } from "../services/api";
+import { askQuestion, getChatHistory, pdfUrl } from "../services/api";
 import ReactMarkdown from "react-markdown";
 
 function ChatWindow({
@@ -1774,6 +1774,16 @@ function ChatWindow({
   const [loading, setLoading] = useState(false);
 
   const messagesEndRef = useRef(null);
+
+  useEffect(() => {
+    let active = true;
+    setMessages([]);
+    if (!document?.filename) return () => { active = false; };
+    getChatHistory(document.filename)
+      .then((result) => { if (active) setMessages(Array.isArray(result.messages) ? result.messages : []); })
+      .catch((error) => { if (active) console.error("Chat history error:", error); });
+    return () => { active = false; };
+  }, [document?.filename]);
 
   // ==========================================
   // AUTO SCROLL

@@ -9,6 +9,8 @@ class Settings(BaseSettings):
     CORS_ORIGINS: str = "http://localhost:5173,http://127.0.0.1:5173"
     MAX_UPLOAD_BYTES: int = 25 * 1024 * 1024
     CHAT_HISTORY_MESSAGES: int = 8
+    MONGO_URI: str = ""
+    MONGO_DATABASE: str = "enterprise_pdf_assistant"
 
     model_config = SettingsConfigDict(env_file=".env", extra="ignore")
 
